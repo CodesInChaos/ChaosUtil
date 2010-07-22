@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Chaos.Util;
+using Chaos.Util.Mathematics;
 
 namespace System.Linq
 {

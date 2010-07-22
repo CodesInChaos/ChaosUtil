@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chaos.Util
+namespace Chaos.Util.Mathematics
 {
 	public struct RectangleF
 	{
@@ -30,16 +30,31 @@ namespace Chaos.Util
 			return (v.X >= Left) && (v.Y >= Top) && (v.X <= Right) && (v.Y <= Bottom);
 		}
 
-		public RectangleF(Vector2f v1, Vector2f v2)
+		private RectangleF(Vector2f v1, Vector2f v2)
 			: this()
 		{
 			TopLeft = Vector2f.Min(v1, v2);
 			BottomRight = Vector2f.Max(v1, v2);
 		}
 
-		public RectangleF(float x1, float y1, float x2, float y2)
-			: this(new Vector2f(x1, y1), new Vector2f(x2, y2))
+		public static RectangleF FromLTRB(float x1, float y1, float x2, float y2)
 		{
+			return FromLTRB(new Vector2f(x1, y1), new Vector2f(x2, y2));
+		}
+
+		public static RectangleF FromLTRB(Vector2f v1, Vector2f v2)
+		{
+			return new RectangleF(v1, v2);
+		}
+
+		public static RectangleF FromLTWH(float left, float top, float width, float height)
+		{
+			return FromLTRB(left, top, left + width, top + height);
+		}
+
+		public static RectangleF FromLTWH(Vector2f topleft, Vector2f size)
+		{
+			return FromLTRB(topleft, topleft + size);
 		}
 	}
 }

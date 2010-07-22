@@ -56,6 +56,21 @@ namespace Chaos.Util.Mathematics
 			return "(" + X + "," + Y + ")";
 		}
 
+		public static Vector2i Max(Vector2i v1, Vector2i v2)
+		{
+			return new Vector2i(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
+		}
+
+		public static Vector2i Min(Vector2i v1, Vector2i v2)
+		{
+			return new Vector2i(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
+		}
+
+		public static implicit operator Vector2f(Vector2i v)
+		{
+			return new Vector2f(v.X, v.Y);
+		}
+
 		public static Vector2i Zero { get { return new Vector2i(); } }
 		public static Vector2i UnitX { get { return new Vector2i(1, 0); } }
 		public static Vector2i UnitY { get { return new Vector2i(0, 1); } }

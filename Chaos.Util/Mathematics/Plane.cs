@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chaos.Util
+namespace Chaos.Util.Mathematics
 {
 	public struct Plane
 	{
@@ -25,7 +25,7 @@ namespace Chaos.Util
 			return Vector3f.Dot(Normal,point) + Offset;
 		}
 
-		public float Intersect(Ray ray)
+		public float Intersect(RayF ray)
 		{
 			return (-Offset - ray.Start * Normal) / (ray.Direction * Normal);
 		}

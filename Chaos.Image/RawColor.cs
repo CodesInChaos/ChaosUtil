@@ -52,7 +52,12 @@ namespace Chaos.Image
 
 		public static RawColor FromARGB(byte a, byte r, byte g, byte b)
 		{
-			return new RawColor((uint)a << 25 | (uint)r << 16 | (uint)g << 8 | (uint)b);
+			return new RawColor((uint)a << 24 | (uint)r << 16 | (uint)g << 8 | (uint)b);
+		}
+
+		public static RawColor FromARGB(byte a, RawColor rgb)
+		{
+			return new RawColor((uint)a << 24 | (rgb.raw & 0xFFFFFF));
 		}
 
 		public static RawColor FromColor(Color color)
@@ -106,5 +111,6 @@ namespace Chaos.Image
 		public static RawColor Yellow { get { return new RawColor(0xFFFFFF00); } }
 		public static RawColor Magenta { get { return new RawColor(0xFFFF00FF); } }
 		public static RawColor Cyan { get { return new RawColor(0xFF00FFFF); } }
+		public static RawColor Gray { get { return new RawColor(0xFF808080); } }
 	}
 }

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chaos.Util
+namespace Chaos.Util.Mathematics
 {
 	//Immutable
-	public struct Ray
+	public struct RayF
 	{
 		public Vector3f AtParam(float param)
 		{
@@ -16,7 +16,7 @@ namespace Chaos.Util
 		public Vector3f Start { get; private set; }
 		public Vector3f Direction { get; private set; }//Normalized
 
-		public Ray(Vector3f start, Vector3f direction)
+		public RayF(Vector3f start, Vector3f direction)
 			:this()
 		{
 			Direction = direction.Normalized;

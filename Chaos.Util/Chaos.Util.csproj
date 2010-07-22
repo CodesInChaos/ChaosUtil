@@ -60,10 +60,11 @@
     <Compile Include="Mathematics\Plane.cs" />
     <Compile Include="Mathematics\Quaternion.cs" />
     <Compile Include="Mathematics\Ray.cs" />
-    <Compile Include="Mathematics\Rectangle.cs" />
-    <Compile Include="Mathematics\SphericalVector3.cs" />
+    <Compile Include="Mathematics\RectangleF.cs" />
+    <Compile Include="Mathematics\RectangleI.cs" />
+    <Compile Include="Mathematics\SphericalVector3f.cs" />
     <Compile Include="Mathematics\Vector2f.cs" />
-    <Compile Include="Mathematics\PolarVector2.cs" />
+    <Compile Include="Mathematics\PolarVector2f.cs" />
     <Compile Include="Mathematics\Vector2i.cs" />
     <Compile Include="Mathematics\Vector3f.cs" />
     <Compile Include="Mathematics\Vector4f.cs" />

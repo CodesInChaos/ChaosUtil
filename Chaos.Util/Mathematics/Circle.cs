@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chaos.Util
+namespace Chaos.Util.Mathematics
 {
 	public struct Circle
 	{
@@ -11,7 +11,7 @@ namespace Chaos.Util
 		public float Radius { get; private set; }
 		public float RadiusSquared { get { return Radius * Radius; } }
 
-		public RectangleF BoundingBox { get { return new RectangleF(Center.X - Radius, Center.Y - Radius, Center.X + Radius, Center.Y + Radius); } }
+		public RectangleF BoundingBox { get { return RectangleF.FromLTRB(Center.X - Radius, Center.Y - Radius, Center.X + Radius, Center.Y + Radius); } }
 		public bool Contains(Vector2f v)
 		{
 			return (v - Center).LengthSquared <= RadiusSquared;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chaos.Util
+namespace Chaos.Util.Mathematics
 {
 	public class DoubleSequenceStats
 	{
@@ -20,7 +20,7 @@ namespace Chaos.Util
 			get
 			{
 				double average = Average;
-				return SumOfSquares - average * average;
+				return SumOfSquares/Count - average * average;
 			}
 		}
 		public double StandardDeviation { get { return Math.Sqrt(Variance); } }
@@ -73,6 +73,11 @@ namespace Chaos.Util
 			: this()
 		{
 			Consume(values);
+		}
+
+		public override string ToString()
+		{
+			return "N=" + Count + " Avg=" + Average + " SD=" + StandardDeviation;
 		}
 	}
 }

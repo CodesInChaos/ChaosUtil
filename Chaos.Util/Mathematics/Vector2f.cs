@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Chaos.Util
+namespace Chaos.Util.Mathematics
 {
 	public struct Vector2f
 	{
@@ -51,7 +51,7 @@ namespace Chaos.Util
 
 		public static float operator *(Vector2f vL, Vector2f vR)
 		{
-			return vL.X * vR.X+vL.Y * vR.Y;
+			return vL.X * vR.X + vL.Y * vR.Y;
 		}
 
 		public static Vector2f operator *(Vector2f v, float s)
@@ -118,6 +118,21 @@ namespace Chaos.Util
 		public static Vector2f Min(Vector2f v1, Vector2f v2)
 		{
 			return new Vector2f(Math.Min(v1.X, v2.X), Math.Min(v1.Y, v2.Y));
+		}
+
+		public static explicit operator Vector2i(Vector2f v)
+		{
+			return new Vector2i((int)v.X, (int)v.Y);
+		}
+
+		public Vector2f Round()
+		{
+			return new Vector2f((float)Math.Round(X), (float)Math.Round(Y));
+		}
+
+		public Vector2i RoundToInt()
+		{
+			return (Vector2i)this.Round();
 		}
 	}
 }
