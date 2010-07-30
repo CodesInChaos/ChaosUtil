@@ -467,7 +467,9 @@ namespace Chaos.Util.TreeDocuments
 		#region Conversion
 		public static explicit operator string(TreeDoc td)
 		{
-			if (!td.HasChildren)
+			if (td == null)
+				return null;
+			else if (!td.HasChildren)
 				return td.Value;
 			else
 				throw new InvalidCastException();
