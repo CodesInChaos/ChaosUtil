@@ -9,6 +9,24 @@ namespace System.Linq
 {
 	public static class LinqExtensions
 	{
+		public static T ArgMaxOrDefault<T>(this IEnumerable<T> source, Func<T, double> valueFunc)
+		{
+			T result = default(T);
+			double max = 0;
+			bool first = true;
+			foreach (T elem in source)
+			{
+				double value = valueFunc(elem);
+				if (first || value > max)
+				{
+					max = value;
+					result = elem;
+				}
+				first = false;
+			}
+			return result;
+		}
+
 		public static int? FirstIndex<T>(this IEnumerable<T> source, Predicate<T> predicate)
 		{
 			int i = 0;
@@ -135,13 +153,13 @@ namespace System.Linq
 			return new DoubleSequenceStats(values);
 		}
 
-		public static IEnumerable<T> DepthFirstSearch<T>(T root)
+		public static IEnumerable<T> DepthFirstSearch<T>(this T root)
 			where T : IEnumerable<T>
 		{
 			return DepthFirstSearch(root, x => x);
 		}
 
-		public static IEnumerable<T> DepthFirstSearch<T>(T root, Func<T, IEnumerable<T>> getChildren)
+		public static IEnumerable<T> DepthFirstSearch<T>(this T root, Func<T, IEnumerable<T>> getChildren)
 		{
 			yield return root;
 			foreach (T child in getChildren(root))

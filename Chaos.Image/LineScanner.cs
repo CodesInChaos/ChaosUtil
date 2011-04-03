@@ -11,16 +11,24 @@ namespace Chaos.Image
 		public static RawColor[] GetRow(this Pixels pix, int y)
 		{
 			RawColor[] row = new RawColor[pix.Width];
+			int i = pix.Width * y;
 			for (int x = 0; x < row.Length; x++)
-				row[x] = pix.Data[x, y];
+			{
+				row[x] = pix.Data[i];
+				i++;
+			}
 			return row;
 		}
 
 		public static RawColor[] GetColumn(this Pixels pix, int x)
 		{
 			RawColor[] col = new RawColor[pix.Height];
+			int i = x;
 			for (int y = 0; y < col.Length; y++)
-				col[y] = pix.Data[x, y];
+			{
+				col[y] = pix.Data[i];
+				i += pix.Width;
+			}
 			return col;
 		}
 
@@ -33,7 +41,7 @@ namespace Chaos.Image
 			double dy = (double)height / longSide;
 			RawColor[] result = new RawColor[longSide + 1];
 			for (int i = 0; i < longSide + 1; i++)
-				result[i] = pix.Data[(int)Math.Round(p1.X + dx * i), (int)Math.Round(p2.Y + dy * i)];
+				result[i] = pix[(int)Math.Round(p1.X + dx * i), (int)Math.Round(p2.Y + dy * i)];
 			return result;
 		}
 	}

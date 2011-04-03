@@ -6,6 +6,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.ObjectModel;
 using Chaos.Util;
+using System.Globalization;
 
 namespace Chaos.Util.TreeDocuments
 {
@@ -480,9 +481,37 @@ namespace Chaos.Util.TreeDocuments
 			return int.Parse((string)td);
 		}
 
+		public static explicit operator long(TreeDoc td)
+		{
+			return long.Parse((string)td);
+		}
+
+		public static explicit operator bool(TreeDoc td)
+		{
+			string s = (string)td;
+			if (s == "1")
+				return true;
+			if (s == "0")
+				return false;
+			throw new InvalidCastException();
+		}
+
 		public static explicit operator double(TreeDoc td)
 		{
-			return double.Parse((string)td);
+			return double.Parse((string)td, CultureInfo.InvariantCulture);
+		}
+
+		public static explicit operator float(TreeDoc td)
+		{
+			return float.Parse((string)td, CultureInfo.InvariantCulture);
+		}
+
+		public static explicit operator float?(TreeDoc td)
+		{
+			if (td != null)
+				return (float)td;
+			else
+				return null;
 		}
 
 		#endregion

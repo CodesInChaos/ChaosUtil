@@ -9,26 +9,44 @@ namespace Chaos.Image
 {
 	public struct Pixels
 	{
-		public static Pixels Null { get { return new Pixels(null); } }
+		public static Pixels Null { get { return new Pixels(); } }
 
-		private readonly RawColor[,] mData;
+		private readonly RawColor[] mData;
+		private readonly int width;
+		private readonly int height;
 
-		public int Width { get { return Data.GetLength(0); } }
-		public int Height { get { return Data.GetLength(1); } }
+		public int Width { get { return width; } }
+		public int Height { get { return height; } }
 
 		public Size Size { get { return new Size(Width, Height); } }
 		public Rectangle Rect { get { return new Rectangle(Point.Empty, Size); } }
 
-		public RawColor[,] Data { get { return mData; } }
+		public RawColor[] Data { get { return mData; } }
 
 		public Pixels(int width, int height)
+			: this(new RawColor[width * height], width, height)
 		{
-			mData = new RawColor[width, height];
 		}
 
-		public Pixels(RawColor[,] data)
+		public Pixels(RawColor[] data, int width, int height)
 		{
+			if (data.Length < (long)width * (long)height)
+				throw new ArgumentException("Dimensions don't fit array");
 			mData = data;
+			this.width = width;
+			this.height = height;
+		}
+
+		public RawColor this[int x, int y]
+		{
+			get
+			{
+				return mData[x + width * y];
+			}
+			set
+			{
+				mData[x + width * y] = value;
+			}
 		}
 
 		public static Pixels CreateFromBitmap(Bitmap bmp)
@@ -38,18 +56,25 @@ namespace Chaos.Image
 			return pix;
 		}
 
+		public static Pixels CreateFromBitmap(Bitmap bmp, PixelPool pool)
+		{
+			Pixels pix = pool.Alloc(bmp.Width, bmp.Height);
+			pix.LoadFromBitmap(bmp);
+			return pix;
+		}
+
 		public static bool DataEquals(Pixels pix1, Pixels pix2)
 		{
+			if (pix1.Width != pix2.Width || pix1.Height != pix2.Height)
+				return false;
 			if (pix1.Data == pix2.Data)
 				return true;
 			if (pix1.Data == null || pix2.Data == null)
 				return false;
-			if (pix1.Width != pix2.Width || pix1.Height != pix2.Height)
-				return false;
-			for (int y = 0; y < pix1.Height; y++)
-				for (int x = 0; x < pix1.Width; x++)
-					if (pix1.Data[x, y] != pix2.Data[x, y])
-						return false;
+			int len = pix1.Width * pix1.Height;
+			for (int i = 0; i < len; i++)
+				if (pix1.Data[i] != pix2.Data[i])
+					return false;
 			return true;
 		}
 
@@ -69,7 +94,7 @@ namespace Chaos.Image
 						uint* p = (uint*)((byte*)bmpData.Scan0 + y * bmpData.Stride);
 						for (int x = 0; x < bmpData.Width; x++)
 						{
-							Data[x, y] = RawColor.FromARGB(*p);
+							this[x, y] = RawColor.FromARGB(*p);
 							p++;
 						}
 					}

@@ -9,7 +9,7 @@ namespace Chaos.Util.Collections
 	{
 		private Dictionary<TKey, List<TValue>> data = new Dictionary<TKey, List<TValue>>();
 
-		public struct Entry : IEnumerable<TValue>
+		public struct Entry : IEnumerable<TValue>//ToDo: Make it derive from IList<TValue>
 		{
 			private readonly MultiDictionary<TKey, TValue> mDictionary;
 			private readonly TKey mKey;
