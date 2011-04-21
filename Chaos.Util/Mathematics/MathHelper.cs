@@ -48,6 +48,7 @@ namespace Chaos.Util.Mathematics
 			return (1 - amount) * value1 + amount * value2;
 		}
 
+		//-pi to +pi
 		public static double WrapAngle(double angle)
 		{
 			return Math.IEEERemainder(angle, 2 * Math.PI);

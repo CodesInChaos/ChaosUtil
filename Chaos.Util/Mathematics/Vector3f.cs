@@ -77,11 +77,22 @@ namespace Chaos.Util.Mathematics
 
 		public static Vector3f Cross(Vector3f v1, Vector3f v2)
 		{
-			return new Vector3f(
-				v1.Y * v2.Z - v2.Y - v1.Z,
-				v1.Z * v2.X - v2.X - v1.Z,
-				v1.X * v2.Z - v2.Y - v1.X
-				);
+			throw new NotImplementedException();
+			/*return new Vector3f(
+				v1.Y * v2.Z - v2.Y * v1.Z,
+				v1.Z * v2.X - v2.X * v1.Z,
+				v1.X * v2.Z - v2.Y * v1.X
+				);*/
+		}
+
+		public static Vector3f ComponentMultiply(Vector3f v1, Vector3f v2)
+		{
+			return new Vector3f(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z);
+		}
+
+		public static Vector3f ComponentDivide(Vector3f v1, Vector3f v2)
+		{
+			return new Vector3f(v1.X / v2.X, v1.Y / v2.Y, v1.Z / v2.Z);
 		}
 
 		public Vector3f Normalized { get { return this / Length; } }

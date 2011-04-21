@@ -11,7 +11,7 @@ namespace Chaos.Util.Reflection
 	{
 		public static MemberInfo MemberInfo(Expression exp)
 		{
-			return null;
+			throw new NotImplementedException();
 		}
 
 		public static PropertyInfo PropertyInfo(Expression exp)

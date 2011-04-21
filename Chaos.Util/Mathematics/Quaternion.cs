@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 
 namespace Chaos.Util.Mathematics
 {
@@ -66,6 +67,14 @@ namespace Chaos.Util.Mathematics
 		public float Norm { get { return (float)Math.Sqrt(NormSquared); } }
 		public Quaternion Normalized { get { return this / Norm; } }
 		public Quaternion Conjugate { get { return new Quaternion(w, -v); } }
+		public bool IsNormalized { get { return Math.Abs(NormSquared - 1) < 0.0001; } }
+
+		//Requires a normalized quaternion
+		public Vector3f RotateVector(Vector3f vec)
+		{
+			Debug.Assert(IsNormalized);
+			throw new NotImplementedException();
+		}
 
 		public Quaternion Inverse
 		{
@@ -82,7 +91,8 @@ namespace Chaos.Util.Mathematics
 
 		public static Quaternion CreateFromUnitAxisAngle(Vector3f axisUnitVector, float angle)
 		{
-			float angle2=0.5f*angle;
+			//Debug.Assert(axisUnitVector.IsUnit);
+			float angle2 = 0.5f * angle;
 			return new Quaternion((float)Math.Cos(angle2), axisUnitVector * (float)Math.Sin(angle2));
 		}
 	}

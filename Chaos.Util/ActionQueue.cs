@@ -29,7 +29,7 @@ namespace Chaos.Util
 			lock (Lock)
 			{
 				if (BoundThread != null && Thread.CurrentThread != BoundThread)
-					throw new InvalidOperationException("Wrong thread, idiot");
+					throw new InvalidOperationException("Wrong thread");
 				if (handling)
 					throw new InvalidOperationException("Re-entered HandleActions");
 				try
