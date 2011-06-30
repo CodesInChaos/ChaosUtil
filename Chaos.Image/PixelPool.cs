@@ -8,7 +8,7 @@ namespace Chaos.Image
 {
 	public class PixelPool
 	{
-		readonly List<RawColor[]> cache = new List<RawColor[]>();
+		readonly List<int[]> cache = new List<int[]>();
 		public readonly int Size;
 		int mAllocCount = 0;
 		int mCacheMissCount = 0;
@@ -35,31 +35,41 @@ namespace Chaos.Image
 			}
 		}
 
-		public Pixels Alloc(int width, int heigth)
+		public Pixels Alloc(int width, int height)
+		{
+			return new Pixels(Alloc(width * height), width, height, 0, height);
+		}
+
+		private int[] Alloc(int size)
 		{
 			lock (cache)
 			{
 				mAllocCount++;
 				while (cache.Count > 0)
 				{
-					RawColor[] pix = cache[cache.Count - 1];
+					int[] pix = cache[cache.Count - 1];
 					cache.RemoveAt(cache.Count - 1);
-					if (pix.Length == heigth * width)
-						return new Pixels(pix, width, heigth);
+					if (pix.Length == size)
+						return pix;
 				}
 				mCacheMissCount++;
-				return new Pixels(width, heigth);
+				return new int[size];
+			}
+		}
+
+		private void Release(int[] pix)
+		{
+			lock (cache)
+			{
+				cache.Add(pix);
+				if (cache.Count > Size)
+					cache.RemoveAt(0);
 			}
 		}
 
 		public void Release(Pixels pix)
 		{
-			lock (cache)
-			{
-				cache.Add(pix.Data);
-				if (cache.Count > Size)
-					cache.RemoveAt(0);
-			}
+			Release(pix.Data);
 		}
 
 		public PixelPool(int size)

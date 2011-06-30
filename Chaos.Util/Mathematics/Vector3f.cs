@@ -29,6 +29,7 @@ namespace Chaos.Util.Mathematics
 		public static Vector3f UnitX { get { return new Vector3f(1, 0, 0); } }
 		public static Vector3f UnitY { get { return new Vector3f(0, 1, 0); } }
 		public static Vector3f UnitZ { get { return new Vector3f(0, 0, 1); } }
+		public static Vector3f One { get { return new Vector3f(1, 1, 1); } }
 
 		public float LengthSquared { get { return X * X + Y * Y + Z * Z; } }
 		public float Length { get { return (float)Math.Sqrt(X * X + Y * Y + Z * Z); } }
@@ -65,9 +66,9 @@ namespace Chaos.Util.Mathematics
 			return new Vector3f(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z);
 		}
 
-		public static float operator *(Vector3f v1, Vector3f v2)
+		public static Vector3f operator *(Vector3f v1, Vector3f v2)
 		{
-			return v1.X * v2.X + v1.Y * v2.Y + v1.Z * v2.Z;
+			return new Vector3f(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z);
 		}
 
 		public static float Dot(Vector3f v1, Vector3f v2)

@@ -9,7 +9,7 @@ using System.Drawing;
 namespace Chaos.Image
 {
 	[StructLayout(LayoutKind.Sequential)]
-	public struct RawColor
+	public struct RawColor : IEquatable<RawColor>
 	{
 		private readonly uint raw;
 
@@ -112,5 +112,10 @@ namespace Chaos.Image
 		public static RawColor Magenta { get { return new RawColor(0xFFFF00FF); } }
 		public static RawColor Cyan { get { return new RawColor(0xFF00FFFF); } }
 		public static RawColor Gray { get { return new RawColor(0xFF808080); } }
+
+		public bool Equals(RawColor other)
+		{
+			return this.raw == other.raw;
+		}
 	}
 }

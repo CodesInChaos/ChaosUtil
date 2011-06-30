@@ -84,11 +84,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BinaryWriterExtensions.cs" />
+    <Compile Include="Collections\Immutable\ImmutableSortedDictionary.cs" />
     <Compile Include="Collections\ThreadSafeQueue.cs" />
     <Compile Include="Conversion.cs" />
     <Compile Include="ActionQueue.cs" />
     <Compile Include="CollectionExtensions.cs" />
-    <Compile Include="ImmutableListDictionary.cs" />
+    <Compile Include="ComparisionHelper.cs" />
+    <Compile Include="RandomGen.cs" />
+    <Compile Include="ReadOnlyDictionary.cs" />
     <Compile Include="Keyboard.cs" />
     <Compile Include="LinqExtensions.cs" />
     <Compile Include="Mathematics\Circle.cs" />
@@ -110,11 +113,13 @@
     <Compile Include="Collections\MultiDictionary.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\MemberFromLamda.cs" />
+    <Compile Include="IRandomGen.cs" />
     <Compile Include="TreeDocuments\InternalTreeDocParser.cs" />
     <Compile Include="TreeDocuments\TreeDoc.cs" />
     <Compile Include="TreeDocuments\TreeDocAttribute.cs" />
     <Compile Include="TreeDocuments\TreeDocExtensions.cs" />
     <Compile Include="TreeDocuments\TreeDocStyle.cs" />
+    <Compile Include="TreeDocuments\TreeDocWriter.cs" />
     <Compile Include="WeakReference.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

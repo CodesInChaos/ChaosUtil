@@ -22,26 +22,26 @@ namespace Chaos.Util.Mathematics
 
 		public double SignedDist(Vector3f point)
 		{
-			return Vector3f.Dot(Normal,point) + Offset;
+			return Vector3f.Dot(Normal, point) + Offset;
 		}
 
 		public float Intersect(RayF ray)
 		{
-			return (-Offset - ray.Start * Normal) / (ray.Direction * Normal);
+			return (-Offset - Vector3f.Dot(ray.Start, Normal)) / (Vector3f.Dot(ray.Direction, Normal));
 		}
 
 		public Plane(Vector3f normal, float offset)
-			:this()
+			: this()
 		{
 			Normal = normal.Normalized;
 			Offset = offset;
 		}
 
 		public Plane(Vector3f normal, Vector3f point)
-			:this()
+			: this()
 		{
 			Normal = normal;
-			Offset = -point * normal;
+			Offset = -Vector3f.Dot(point, normal);
 		}
 	}
 }

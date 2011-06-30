@@ -9,6 +9,7 @@ namespace Chaos.Util.Mathematics
 	{
 		public float X;
 		public float Y;
+
 		public Vector2f(float x, float y)
 		{
 			X = x;
@@ -18,6 +19,7 @@ namespace Chaos.Util.Mathematics
 		public static Vector2f Zero { get { return new Vector2f(); } }
 		public static Vector2f UnitX { get { return new Vector2f(1, 0); } }
 		public static Vector2f UnitY { get { return new Vector2f(0, 1); } }
+		public static Vector2f One { get { return new Vector2f(1, 1); } }
 
 		public static float Distance(Vector2f v1, Vector2f v2)
 		{

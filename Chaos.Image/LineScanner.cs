@@ -14,7 +14,7 @@ namespace Chaos.Image
 			int i = pix.Width * y;
 			for (int x = 0; x < row.Length; x++)
 			{
-				row[x] = pix.Data[i];
+				row[x] = pix[x, y];
 				i++;
 			}
 			return row;
@@ -26,7 +26,7 @@ namespace Chaos.Image
 			int i = x;
 			for (int y = 0; y < col.Length; y++)
 			{
-				col[y] = pix.Data[i];
+				col[y] = pix[x, y];
 				i += pix.Width;
 			}
 			return col;

@@ -4,31 +4,51 @@ using System.Linq;
 using System.Text;
 using Chaos.Util;
 using Chaos.Util.Mathematics;
+using System.Diagnostics.Contracts;
 
 namespace System.Linq
 {
 	public static class LinqExtensions
 	{
-		public static T ArgMaxOrDefault<T>(this IEnumerable<T> source, Func<T, double> valueFunc)
+		// Returns the element of source for which valueFunc is maximal
+		// If there are several maxima the first one is returned
+		// NaNs are never considered as maximum.
+		// If the sequence is empty or consists only of NaNs the result is `defaultValue`
+		public static T ArgMaxOrDefault<T>(this IEnumerable<T> source, Func<T, double> valueFunc, T defaultValue)
 		{
-			T result = default(T);
+			Contract.Requires<ArgumentNullException>(source != null);
+			Contract.Requires<ArgumentNullException>(valueFunc != null);
+			T result = defaultValue;
 			double max = 0;
 			bool first = true;
 			foreach (T elem in source)
 			{
 				double value = valueFunc(elem);
+				if (double.IsNaN(value))
+					continue;
 				if (first || value > max)
 				{
 					max = value;
 					result = elem;
+					first = false;
 				}
-				first = false;
 			}
 			return result;
 		}
 
-		public static int? FirstIndex<T>(this IEnumerable<T> source, Predicate<T> predicate)
+		public static T ArgMaxOrDefault<T>(this IEnumerable<T> source, Func<T, double> valueFunc)
 		{
+			Contract.Requires<ArgumentNullException>(source != null);
+			Contract.Requires<ArgumentNullException>(valueFunc != null);
+			return ArgMaxOrDefault(source, valueFunc, default(T));
+		}
+
+		//Return -1 if no element satisfies the predicate
+		public static int FirstIndex<T>(this IEnumerable<T> source, Predicate<T> predicate)
+		{
+			Contract.Requires<ArgumentNullException>(source != null);
+			Contract.Requires<ArgumentNullException>(predicate != null);
+			Contract.Ensures(Contract.Result<int>() >= -1);
 			int i = 0;
 			foreach (T element in source)
 			{
@@ -36,11 +56,15 @@ namespace System.Linq
 					return i;
 				i++;
 			}
-			return null;
+			return -1;
 		}
 
-		public static int? FirstIndex<T>(this IEnumerable<T> source, Func<T, int, bool> predicate)
+		//Return -1 if no element satisfies the predicate
+		public static int FirstIndex<T>(this IEnumerable<T> source, Func<T, int, bool> predicate)
 		{
+			Contract.Requires<ArgumentNullException>(source != null);
+			Contract.Requires<ArgumentNullException>(predicate != null);
+			Contract.Ensures(Contract.Result<int>() >= -1);
 			int i = 0;
 			foreach (T element in source)
 			{
@@ -48,33 +72,43 @@ namespace System.Linq
 					return i;
 				i++;
 			}
-			return null;
+			return -1;
 		}
 
-		public static int? LastIndex<T>(this IEnumerable<T> source, Predicate<T> predicate)
+		//Return -1 if no element satisfies the predicate
+		public static int LastIndex<T>(this IEnumerable<T> source, Predicate<T> predicate)
 		{
-			int i = 0;
-			int? last = null;
-			foreach (T element in source)
-			{
-				if (predicate(element))
-					last = i;
-				i++;
-			}
-			return last;
+			return LastIndex(source, (elem, i) => predicate(elem));
 		}
 
-		public static int? LastIndex<T>(this IEnumerable<T> source, Func<T, int, bool> predicate)
+		public static int LastIndex<T>(this IEnumerable<T> source, Func<T, int, bool> predicate)
 		{
-			int i = 0;
-			int? last = null;
-			foreach (T element in source)
+			Contract.Requires<ArgumentNullException>(source != null);
+			Contract.Requires<ArgumentNullException>(predicate != null);
+			Contract.Ensures(Contract.Result<int>() >= -1);
+
+			IList<T> sourceList = source as IList<T>;
+			if (sourceList != null)
 			{
-				if (predicate(element, i))
-					last = i;
-				i++;
+				for (int i = sourceList.Count; i >= 0; i--)
+				{
+					if (predicate(sourceList[i], i))
+						return i;
+				}
+				return -1;
 			}
-			return last;
+			else
+			{
+				int i = 0;
+				int last = -1;
+				foreach (T element in source)
+				{
+					if (predicate(element, i))
+						last = i;
+					i++;
+				}
+				return last;
+			}
 		}
 
 		public static IEnumerable<T> TakeWhileIncludingTerminator<T>(this IEnumerable<T> source, Predicate<T> predecate)
@@ -102,19 +136,25 @@ namespace System.Linq
 		public static T FirstOrDefault<T>(this IEnumerable<T> source, T defaultValue)
 		{
 			IEnumerator<T> enumerator = source.GetEnumerator();
-			if (enumerator.MoveNext())
-				return enumerator.Current;
-			else
-				return defaultValue;
+			using (enumerator)
+			{
+				if (enumerator.MoveNext())
+					return enumerator.Current;
+				else
+					return defaultValue;
+			}
 		}
 
 		public static T FirstOrDefault<T>(this IEnumerable<T> source, Func<T, bool> predicate, T defaultValue)
 		{
 			IEnumerator<T> enumerator = source.Where(predicate).GetEnumerator();
-			if (enumerator.MoveNext())
-				return enumerator.Current;
-			else
-				return defaultValue;
+			using (enumerator)
+			{
+				if (enumerator.MoveNext())
+					return enumerator.Current;
+				else
+					return defaultValue;
+			}
 		}
 
 

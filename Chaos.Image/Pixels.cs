@@ -11,41 +11,46 @@ namespace Chaos.Image
 	{
 		public static Pixels Null { get { return new Pixels(); } }
 
-		private readonly RawColor[] mData;
+		private readonly int[] mData;
 		private readonly int width;
 		private readonly int height;
+		private readonly int stride;
+		private readonly int start;
+		//private unsafe int* pData;
 
 		public int Width { get { return width; } }
 		public int Height { get { return height; } }
 
-		public Size Size { get { return new Size(Width, Height); } }
-		public Rectangle Rect { get { return new Rectangle(Point.Empty, Size); } }
+		//public Size Size { get { return new Size(Width, Height); } }
+		//public Rectangle Rect { get { return new Rectangle(Point.Empty, Size); } }
 
-		public RawColor[] Data { get { return mData; } }
+		public int[] Data { get { return mData; } }
 
 		public Pixels(int width, int height)
-			: this(new RawColor[width * height], width, height)
+			: this(new int[width * height], width, height, 0, height)
 		{
 		}
 
-		public Pixels(RawColor[] data, int width, int height)
+		internal Pixels(int[] data, int width, int height, int start, int stride)
 		{
 			if (data.Length < (long)width * (long)height)
 				throw new ArgumentException("Dimensions don't fit array");
 			mData = data;
 			this.width = width;
 			this.height = height;
+			this.start = start;
+			this.stride = stride;
 		}
 
 		public RawColor this[int x, int y]
 		{
 			get
 			{
-				return mData[x + width * y];
+				return RawColor.FromARGB(mData[start + x + width * y]);
 			}
 			set
 			{
-				mData[x + width * y] = value;
+				mData[x + width * y] = (int)value.ARGB;
 			}
 		}
 

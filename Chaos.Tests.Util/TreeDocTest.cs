@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ChaosUtil.TreeDocuments;
+using Chaos.Util.TreeDocuments;
 
 namespace ChaosUtilTests
 {
@@ -89,7 +89,7 @@ namespace ChaosUtilTests
 		[TestMethod]
 		public void ExpandedSerialization()
 		{
-			var td1=TreeDoc.CreateList("A", "C1", "C2");
+			var td1 = TreeDoc.CreateList("A", "C1", "C2");
 			var td2 = TreeDoc.CreateList("C3", "C31", "C32");
 			td1.Add(td2);
 			td2.ForceExpand = true;
@@ -100,7 +100,7 @@ namespace ChaosUtilTests
 		public void SimpleParse()
 		{
 			string s = " a ( b:c, d, e ( ) ) ";
-			TreeDoc td=TreeDoc.Parse(s);
+			TreeDoc td = TreeDoc.Parse(s);
 			string s2 = td.SaveAsList();
 			Assert.AreEqual("a(b:c,d,e())", s2);
 			TreeDoc.Parse("\"a\"");
