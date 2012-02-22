@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Chaos.Util
 {
-	public sealed class DefaultRandomGen : IRandomGen
+	internal sealed class DefaultRandomGen : IRandomGen
 	{
 		[ThreadStatic]
 		private static RandomGen threadInstance;
@@ -17,7 +17,7 @@ namespace Chaos.Util
 				var inst = threadInstance;
 				if (inst == null)
 				{
-					inst = new RandomGen();
+					inst = RandomGen.Create();
 					threadInstance = inst;
 				}
 				return inst;

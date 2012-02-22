@@ -51,7 +51,7 @@ namespace Chaos.Util
 			}
 		}
 
-		private double gauss2;
+		private double cachedGauss;
 
 		public double Uniform()
 		{
@@ -90,10 +90,11 @@ namespace Chaos.Util
 
 		public double Gaussian()
 		{
-			if (!double.IsNaN(gauss2))
+			double oldGauss = this.cachedGauss;
+			if (!double.IsNaN(oldGauss))
 			{
-				gauss2 = double.NaN;
-				return gauss2;
+				this.cachedGauss = double.NaN;
+				return oldGauss;
 			}
 			else
 			{
@@ -104,7 +105,8 @@ namespace Chaos.Util
 				double angle = (2 * Math.PI) * v;
 
 				double gauss1 = radius * Math.Cos(angle);
-				gauss2 = radius * Math.Sin(angle);
+				double gauss2 = radius * Math.Sin(angle);
+				this.cachedGauss = gauss2;
 				return gauss1;
 			}
 		}
@@ -140,16 +142,6 @@ namespace Chaos.Util
 			Contract.Requires(provider != null);
 			this.provider = provider;
 			this.buffer = new int[bufferSizeInBytes / 4];
-		}
-
-		/// <summary>
-		/// Gets an automatically seeded generator
-		/// The quality of the seed and the generator are guaranteed to be good, even if multiple instances are created in rapid succession
-		/// </summary>
-		public RandomGen()
-			: this(new System.Security.Cryptography.RNGCryptoServiceProvider().GetBytes, 1024 * 8)
-		{
-
 		}
 
 		public double Exponential()
@@ -247,7 +239,17 @@ namespace Chaos.Util
 
 		public void Bytes(byte[] data, int start, int count)
 		{
-			throw new NotImplementedException();
+			int byteIndex = index * sizeof(int);
+			while (count > byteIndex)
+			{
+				Buffer.BlockCopy(buffer, 0, data, start, byteIndex);
+				start += byteIndex;
+				Refill();
+				byteIndex = buffer.Length * sizeof(int);
+			}
+			byteIndex -= count;
+			Buffer.BlockCopy(buffer, byteIndex, data, start, count);
+			index = byteIndex / sizeof(int);
 		}
 
 		private static DefaultRandomGen _default = new DefaultRandomGen();
@@ -256,7 +258,7 @@ namespace Chaos.Util
 		/// Returns a threadsafe global instance of `IRandomGen`.
 		/// Due to thread safety it's performance will be lower than if you create your own instance
 		/// </summary>
-		public static DefaultRandomGen Default
+		public static IRandomGen Default
 		{
 			get
 			{
@@ -334,6 +336,64 @@ namespace Chaos.Util
 					result++;
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// Builds on RNGCryptoServiceProvider
+		/// </summary>
+		public static RandomGen CreateRNGCryptoServiceProvider()
+		{
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return new RandomGen(new System.Security.Cryptography.RNGCryptoServiceProvider().GetBytes, 1024 * 8);
+		}
+
+		/// <summary>
+		/// Based on the Well512 PRNG
+		/// Fast, but not secure
+		/// </summary>
+		public static RandomGen CreateWell512()
+		{
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return new RandomGen(new Well512().GenerateInts, 1024);
+		}
+
+		/// <summary>
+		/// cryptographically secure
+		/// </summary>
+		/// <returns></returns>
+		public static RandomGen CreateSecure()
+		{
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return CreateRNGCryptoServiceProvider();
+		}
+
+		/// <summary>
+		/// Good enough for most simulation needs
+		/// </summary>
+		public static RandomGen CreateFast()
+		{
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return CreateWell512();
+		}
+
+		public static RandomGen CreateFast(long seed)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Good enough for all simulation needs
+		/// But not cryptographically secure
+		/// </summary>
+		public static RandomGen Create()
+		{
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return CreateRNGCryptoServiceProvider();
+		}
+
+		public static RandomGen Create(long seed)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

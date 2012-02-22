@@ -63,9 +63,9 @@ namespace ChaosUtilTests
 		[TestMethod]
 		public void TestMethod1()
 		{
-			var rng = new RandomGen();
-			int[] buckets = new int[0x1000];
-			for (int i = 0; i < 0x1000*1000; i++)
+			var rng = RandomGen.CreateFast();
+			int[] buckets = new int[0x10000];
+			for (int i = 0; i < 0x10000*1000; i++)
 			{
 				double u = rng.Uniform();
 				int bucket = (int)(u * buckets.Length);
