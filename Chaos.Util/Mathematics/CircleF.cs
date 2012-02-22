@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 
 namespace Chaos.Util.Mathematics
 {
-	public struct Circle
+	public struct CircleF
 	{
 		private readonly Vector2f center;
 		private readonly float radius;
@@ -43,7 +43,7 @@ namespace Chaos.Util.Mathematics
 			return (v - Center).LengthSquared <= RadiusSquared;
 		}
 
-		public Circle(Vector2f center, float radius)
+		public CircleF(Vector2f center, float radius)
 		{
 			Contract.Requires<ArgumentException>(radius >= 0);
 			this.center = center;

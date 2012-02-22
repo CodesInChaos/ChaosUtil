@@ -3,60 +3,98 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Diagnostics;
+using System.Diagnostics.Contracts;
 
 namespace Chaos.Util
 {
 	/// <summary>
-	/// Delegate that is used to fill the byte array with random data
+	/// Delegate that is used to fill the int array with random data
 	/// </summary>
 	/// <param name="randomData">the array to fill</param>
-	public delegate void RandomBytesProvider(byte[] randomData);
+	public delegate void RandomIntDataProvider(int[] randomData);
+	public delegate void RandomByteDataProvider(byte[] randomData);
 
 	/// <summary>
 	/// The default implementation for IRandomGen
 	/// </summary>
 	public class RandomGen : IRandomGen
 	{
-		private readonly RandomBytesProvider provider;
+		private readonly RandomIntDataProvider provider;
 
-		protected readonly byte[] buffer;
+		protected readonly int[] buffer;
 		protected int index;
 
-		protected virtual void Refill()
+
+		[ContractInvariantMethod]
+		void ObjectInvariant()
+		{
+			Contract.Invariant(provider != null);
+			Contract.Invariant(buffer != null);
+			Contract.Invariant(index >= 0);
+			Contract.Invariant(index <= buffer.Length);
+		}
+
+		private void Refill()
 		{
 			provider(buffer);
 		}
 
-		protected void Require(int bytes)
+		protected void Require(int ints)
 		{
-			Debug.Assert(bytes >= 0);
-			Debug.Assert(bytes <= buffer.Length);
-			index -= bytes;
+			Contract.Requires(ints >= 0);
+			Contract.Requires(ints <= buffer.Length);
+			index -= ints;
 			if (index < 0)
 			{
 				Refill();
-				index = buffer.Length - bytes;
+				index = buffer.Length - ints;
 			}
 		}
 
 		private double gauss2;
 
-		private double doubleEpsilon;
-		private int doubleRandomBytes;
-		private float singleEpsilon;
-		private int singleRandomBytes;
-
-
 		public double Uniform()
 		{
-			const double multiplier = 1.0 / ulong.MaxValue;
-			return UInt64() * multiplier;
+			ulong value = UInt64();
+			//chosen so that result < 1 even when value&mask==mask
+			const ulong count = 1ul << 53;
+			const ulong mask = count - 1;
+			double result = (value & mask) * (1 / (double)count);
+			return result;
 		}
 
-		public double Gauss()
+		public double UniformStartEnd(double start, double exclusiveEnd)
+		{
+			return (exclusiveEnd - start) * Uniform() + start;
+		}
+
+		public double UniformStartLength(double start, double length)
+		{
+			return length * Uniform() + start;
+		}
+
+		public float UniformSingle()
+		{
+			throw new NotImplementedException();
+		}
+
+		public float UniformSingleStartEnd(float start, float exclusiveEnd)
+		{
+			throw new NotImplementedException();
+		}
+
+		public float UniformSingleStartLength(float start, float length)
+		{
+			throw new NotImplementedException();
+		}
+
+		public double Gaussian()
 		{
 			if (!double.IsNaN(gauss2))
+			{
+				gauss2 = double.NaN;
 				return gauss2;
+			}
 			else
 			{
 				double u = Uniform();
@@ -71,39 +109,47 @@ namespace Chaos.Util
 			}
 		}
 
-		public double Gauss(double standardDeviation)
+		public double Gaussian(double standardDeviation)
 		{
-			return Gauss() * standardDeviation;
+			return Gaussian() * standardDeviation;
 		}
 
-		public double Gauss(double standardDeviation, double mean)
+		public double Gaussian(double mean, double standardDeviation)
 		{
-			return Gauss() * standardDeviation + mean;
+			return Gaussian() * standardDeviation + mean;
 		}
 
-		public RandomGen(RandomBytesProvider provider, int bufferSize)
+		public RandomGen(RandomByteDataProvider provider, int bufferSizeInBytes)
 		{
+			Contract.Requires(bufferSizeInBytes >= 8);
+			Contract.Requires(bufferSizeInBytes % 4 == 0);
+			Contract.Requires(provider != null);
+			byte[] byteBuffer = new byte[bufferSizeInBytes];
+			this.buffer = new int[bufferSizeInBytes / 4];
+			this.provider = (int[] randomData) =>
+				{
+					provider(byteBuffer);
+					Buffer.BlockCopy(byteBuffer, 0, buffer, 0, bufferSizeInBytes);
+				};
+		}
+
+		public RandomGen(RandomIntDataProvider provider, int bufferSizeInBytes)
+		{
+			Contract.Requires(bufferSizeInBytes >= 8);
+			Contract.Requires(bufferSizeInBytes % 4 == 0);
+			Contract.Requires(provider != null);
 			this.provider = provider;
-			this.buffer = new byte[bufferSize];
+			this.buffer = new int[bufferSizeInBytes / 4];
 		}
 
 		/// <summary>
 		/// Gets an automatically seeded generator
+		/// The quality of the seed and the generator are guaranteed to be good, even if multiple instances are created in rapid succession
 		/// </summary>
 		public RandomGen()
-			: this(new System.Security.Cryptography.RNGCryptoServiceProvider().GetBytes, 2048)
+			: this(new System.Security.Cryptography.RNGCryptoServiceProvider().GetBytes, 1024 * 8)
 		{
 
-		}
-
-		public double UniformStartEnd(double start, double end)
-		{
-			return (end - start) * Uniform() + start;
-		}
-
-		public double UniformStartLength(double start, double length)
-		{
-			return (length - start) * Uniform() + start;
 		}
 
 		public double Exponential()
@@ -112,9 +158,15 @@ namespace Chaos.Util
 			return Math.Log(u);
 		}
 
-		public double Exponential(double mean)
+
+		public double ExponentialMean(double mean)
 		{
-			return mean * Exponential();
+			return Exponential() * mean;
+		}
+
+		public double ExponentialRate(double rate)
+		{
+			return Exponential() / rate;
 		}
 
 		public int Poisson(double mean)
@@ -134,73 +186,128 @@ namespace Chaos.Util
 
 		public sbyte SByte()
 		{
-			Require(1);
-			sbyte result = (sbyte)buffer[index];
-			return result;
+			return (sbyte)Int32();
 		}
 
 		public byte Byte()
 		{
-			Require(1);
-			byte result = buffer[index];
-			return result;
+			return (byte)Int32();
 		}
 
 		public short Int16()
 		{
-			Require(2);
-			var result = BitConverter.ToInt16(buffer, index);
-			return result;
+			return (short)Int32();
 		}
 
 		public ushort UInt16()
 		{
-			Require(2);
-			var result = BitConverter.ToUInt16(buffer, index);
-			return result;
+			return (ushort)Int32();
 		}
 
 		public int Int32()
 		{
-			Require(4);
-			var result = BitConverter.ToInt32(buffer, index);
-			return result;
+			int index = --this.index;
+			if (index < 0)
+			{
+				Refill();
+				index = buffer.Length - 1;
+				this.index = index;
+			}
+			return buffer[index];
 		}
 
 		public uint UInt32()
 		{
-			Require(4);
-			var result = BitConverter.ToUInt32(buffer, index);
-			return result;
+			int index = --this.index;
+			if (index < 0)
+			{
+				Refill();
+				index = buffer.Length - 1;
+				this.index = index;
+			}
+			return (uint)buffer[index];
 		}
 
 		public Int64 Int64()
 		{
-			Require(8);
-			var result = BitConverter.ToInt64(buffer, index);
-			return result;
+			return (long)UInt64();
 		}
 
 		public UInt64 UInt64()
 		{
-			Require(8);
-			UInt64 result = BitConverter.ToUInt64(buffer, index);
-			return result;
+			int index = (this.index -= 2);
+			if (index < 0)
+			{
+				Refill();
+				index = buffer.Length - 2;
+				this.index = index;
+			}
+			return (ulong)(uint)buffer[index] << 32 | (uint)buffer[index + 1];
 		}
 
-		public int UniformInt(int count)
+		public void Bytes(byte[] data, int start, int count)
 		{
 			throw new NotImplementedException();
 		}
 
-		public int UniformIntStartEnd(int start, int end)
+		private static DefaultRandomGen _default = new DefaultRandomGen();
+
+		/// <summary>
+		/// Returns a threadsafe global instance of `IRandomGen`.
+		/// Due to thread safety it's performance will be lower than if you create your own instance
+		/// </summary>
+		public static DefaultRandomGen Default
 		{
-			return start + UniformInt(end - start);
+			get
+			{
+				return _default;
+			}
+		}
+
+		public int UniformInt(int count)
+		{
+			return (int)UniformInt((uint)count);
+		}
+
+		private uint UniformInt(uint count)
+		{
+			Contract.Requires(count > 0);
+			Contract.Ensures(Contract.Result<uint>() < count);
+			uint max;
+			uint rand;
+			uint maxUseful;
+			do
+			{
+				if (count <= byte.MaxValue)
+				{
+					max = byte.MaxValue;
+					rand = Byte();
+				}
+				else if (count <= ushort.MaxValue)
+				{
+					max = ushort.MaxValue;
+					rand = UInt16();
+				}
+				else
+				{
+					max = uint.MaxValue;
+					rand = UInt32();
+				}
+				maxUseful = (max / count) * count;
+			}
+			while (rand > maxUseful);
+
+			return rand % count;
+		}
+
+		public int UniformIntStartEnd(int start, int inclusiveEnd)
+		{
+			throw new NotImplementedException();
 		}
 
 		public int UniformIntStartCount(int start, int count)
 		{
-			return start + UniformInt(count);
+			throw new NotImplementedException();
 		}
 
 		public long UniformInt(long count)
@@ -208,7 +315,7 @@ namespace Chaos.Util
 			throw new NotImplementedException();
 		}
 
-		public long UniformIntStartEnd(long start, long end)
+		public long UniformIntStartEnd(long start, long inclusiveEnd)
 		{
 			throw new NotImplementedException();
 		}
@@ -220,25 +327,13 @@ namespace Chaos.Util
 
 		public int Binomial(int n, double probability)
 		{
-			throw new NotImplementedException();
-		}
-
-		public long Binomial(long n, double probability)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Bytes(byte[] data, int start, int count)
-		{
-			if (start == 0 && count == data.Length)
+			int result = 0;
+			for (int i = 0; i < n; i++)
 			{
-				provider(data);
+				if (Bool(probability))
+					result++;
 			}
-			else
-			{
-				throw new NotImplementedException();
-			}
+			return result;
 		}
 	}
-
 }

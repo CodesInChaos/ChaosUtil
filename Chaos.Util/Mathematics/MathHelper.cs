@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics.Contracts;
 
 namespace Chaos.Util.Mathematics
 {
@@ -51,6 +52,8 @@ namespace Chaos.Util.Mathematics
 		//-pi to +pi
 		public static double WrapAngle(double angle)
 		{
+			Contract.Ensures(!(Contract.Result<double>() < -Math.PI));
+			Contract.Ensures(!(Contract.Result<double>() > +Math.PI));
 			return Math.IEEERemainder(angle, 2 * Math.PI);
 		}
 
@@ -61,11 +64,13 @@ namespace Chaos.Util.Mathematics
 
 		public static float Square(float x)
 		{
+			Contract.Ensures(!(Contract.Result<float>() < 0));//NaN and +Inf are possible return values
 			return x * x;
 		}
 
 		public static double Square(double x)
 		{
+			Contract.Ensures(!(Contract.Result<double>() < 0));//NaN and +Inf are possible return values
 			return x * x;
 		}
 	}

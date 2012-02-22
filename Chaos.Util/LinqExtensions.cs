@@ -157,6 +157,15 @@ namespace System.Linq
 			}
 		}
 
+		public static IEnumerable<KeyValuePair<int, T>> IndexValuePairs<T>(this IEnumerable<T> seq)
+		{
+			int i = 0;
+			foreach (T value in seq)
+			{
+				yield return new KeyValuePair<int, T>(i, value);
+				i++;
+			}
+		}
 
 		public static string ConcatToString(this IEnumerable<String> strings, string seperator)
 		{

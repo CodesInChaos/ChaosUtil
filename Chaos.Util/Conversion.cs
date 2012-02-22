@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Diagnostics.Contracts;
 
 namespace Chaos.Util
 {
@@ -30,12 +31,12 @@ namespace Chaos.Util
 
 		public static string ToHex(this UInt32 i, int digits)
 		{
-			return i.ToString("X" + digits + "");
+			return i.ToString("X" + digits);
 		}
 
 		public static string ToHex(this Int32 i, int digits)
 		{
-			return i.ToString("X" + digits + "");
+			return i.ToString("X" + digits);
 		}
 
 		public static T ConvertDelegate<T>(Delegate d)
@@ -69,7 +70,9 @@ namespace Chaos.Util
 		private static readonly char[] hexchars1 = new char[256];
 		public static string ToHex(this byte[] buffer)
 		{
+			Contract.Requires(buffer != null);
 			StringBuilder sb = new StringBuilder(buffer.Length * 2);
+			sb.Length = 2 * buffer.Length;
 			for (int i = 0; i < buffer.Length; i++)
 			{
 				sb[2 * i] = hexchars0[buffer[i]];

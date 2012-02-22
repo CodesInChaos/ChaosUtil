@@ -2,12 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics.Contracts;
 
 namespace Chaos.Util.Collections
 {
 	public class ThreadSafeQueue<T>
 	{
-		private Queue<T> queue = new Queue<T>();
+		private readonly Queue<T> queue = new Queue<T>();
+
+		[ContractInvariantMethod]
+		private void ObjectInvariant()
+		{
+			Contract.Invariant(queue != null);
+		}
 
 		public void Enqueue(T element)
 		{

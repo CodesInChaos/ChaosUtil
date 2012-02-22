@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics.Contracts;
 
 namespace Chaos.Util.Mathematics
 {
@@ -47,12 +48,14 @@ namespace Chaos.Util.Mathematics
 
 		public void Consume(IEnumerable<double> values)
 		{
+			Contract.Requires(values != null);
 			foreach (double value in values)
 				Consume(value);
 		}
 
 		public void Consume(IEnumerable<float> values)
 		{
+			Contract.Requires(values != null);
 			foreach (double value in values)
 				Consume(value);
 		}

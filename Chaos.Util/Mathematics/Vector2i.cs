@@ -26,6 +26,21 @@ namespace Chaos.Util.Mathematics
 			return new Vector2i(v1.X - v2.X, v1.Y - v2.Y);
 		}
 
+		public static Vector2i operator *(Vector2i v, int i)
+		{
+			return new Vector2i(v.X * i, v.Y * i);
+		}
+
+		public static Vector2i operator *(int i, Vector2i v)
+		{
+			return new Vector2i(v.X * i, v.Y * i);
+		}
+
+		public static Vector2i operator /(Vector2i v, int i)
+		{
+			return new Vector2i(v.X / i, v.Y / i);
+		}
+
 		public static bool operator ==(Vector2i v1, Vector2i v2)
 		{
 			return (v1.X == v2.X) && (v1.Y == v2.Y);

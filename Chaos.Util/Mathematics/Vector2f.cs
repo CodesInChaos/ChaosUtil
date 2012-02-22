@@ -5,15 +5,18 @@ using System.Text;
 
 namespace Chaos.Util.Mathematics
 {
-	public struct Vector2f
+	public struct Vector2f : IEquatable<Vector2f>, IFormattable
 	{
-		public float X;
-		public float Y;
+		private readonly float x;
+		private readonly float y;
+
+		public float X { get { return x; } }
+		public float Y { get { return y; } }
 
 		public Vector2f(float x, float y)
 		{
-			X = x;
-			Y = y;
+			this.x = x;
+			this.y = y;
 		}
 
 		public static Vector2f Zero { get { return new Vector2f(); } }
@@ -51,14 +54,19 @@ namespace Chaos.Util.Mathematics
 			return new Vector2f(l.X - r.X, l.Y - r.Y);
 		}
 
-		public static float operator *(Vector2f vL, Vector2f vR)
+		public static Vector2f operator *(Vector2f vL, Vector2f vR)
 		{
-			return vL.X * vR.X + vL.Y * vR.Y;
+			return new Vector2f(vL.X * vR.X, vL.Y * vR.Y);
 		}
 
 		public static Vector2f operator *(Vector2f v, float s)
 		{
 			return new Vector2f(v.X * s, v.Y * s);
+		}
+
+		public static Vector2f operator /(Vector2f vL, Vector2f vR)
+		{
+			return new Vector2f(vL.X / vR.X, vL.Y / vR.Y);
 		}
 
 		public static Vector2f operator *(float s, Vector2f v)
@@ -112,6 +120,11 @@ namespace Chaos.Util.Mathematics
 			return "(" + X + "|" + Y + ")";
 		}
 
+		public string ToString(string format, IFormatProvider formatProvider)
+		{
+			return "(" + X.ToString(format, formatProvider) + "|" + Y.ToString(format, formatProvider) + ")";
+		}
+
 		public static Vector2f Max(Vector2f v1, Vector2f v2)
 		{
 			return new Vector2f(Math.Max(v1.X, v2.X), Math.Max(v1.Y, v2.Y));
@@ -135,6 +148,23 @@ namespace Chaos.Util.Mathematics
 		public Vector2i RoundToInt()
 		{
 			return (Vector2i)this.Round();
+		}
+
+		public bool Equals(Vector2f other)
+		{
+			return X.Equals(other.X) && Y.Equals(other.Y);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (!(obj.GetType() == typeof(Vector2f)))
+				return false;
+			return Equals((Vector2f)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			return X.GetHashCode() ^ Y.GetHashCode() * 33;
 		}
 	}
 }

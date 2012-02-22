@@ -11,17 +11,20 @@ namespace Chaos.Util
 	public interface IRandomGen
 	{
 		double Uniform();
-		double UniformStartEnd(double start, double end);
+		double UniformStartEnd(double start, double exclusiveEnd);
 		double UniformStartLength(double start, double length);
 
-		double Gauss();
-		double Gauss(double standardDeviation);
-		double Gauss(double mean, double standardDeviation);
+		float UniformSingle();
+		float UniformSingleStartEnd(float start, float exclusiveEnd);
+		float UniformSingleStartLength(float start, float length);
+
+		double Gaussian();
+		double Gaussian(double standardDeviation);
+		double Gaussian(double mean, double standardDeviation);
 
 		double Exponential();
-		double Exponential(double mean);
-
-		int Poisson(double mean);
+		double ExponentialMean(double mean);
+		double ExponentialRate(double rate);
 
 		bool Bool();
 		bool Bool(double probability);
@@ -36,16 +39,15 @@ namespace Chaos.Util
 		UInt64 UInt64();
 
 		int UniformInt(int count);
-		//start and end inclusive
 		int UniformIntStartEnd(int start, int inclusiveEnd);
 		int UniformIntStartCount(int start, int count);
+
 		long UniformInt(long count);
 		long UniformIntStartEnd(long start, long inclusiveEnd);
 		long UniformIntStartCount(long start, long count);
 
-
+		int Poisson(double mean);
 		int Binomial(int n, double probability);
-		long Binomial(long n, double probability);
 
 		void Bytes(byte[] data, int start, int count);
 	}
@@ -53,119 +55,161 @@ namespace Chaos.Util
 	[ContractClassFor(typeof(IRandomGen))]
 	internal abstract class ContractForIRandomGen : IRandomGen
 	{
-		public double Uniform()
+		double IRandomGen.Uniform()
 		{
 			Contract.Ensures(Contract.Result<double>() >= 0);
-			Contract.Ensures(Contract.Result<double>() <= 1);
+			Contract.Ensures(Contract.Result<double>() < 1);
 			throw new NotImplementedException();
 		}
 
-		public double UniformStartEnd(double start, double end)
+		double IRandomGen.UniformStartEnd(double start, double exclusiveEnd)
 		{
-			Contract.Requires(start <= end);
+			Contract.Requires(start < exclusiveEnd);
+			Contract.Requires(start > double.NegativeInfinity);
+			Contract.Requires(exclusiveEnd < double.PositiveInfinity);
 			Contract.Ensures(Contract.Result<double>() >= start);
-			Contract.Ensures(Contract.Result<double>() <= end);
+			Contract.Ensures(Contract.Result<double>() < exclusiveEnd);
 			throw new NotImplementedException();
 		}
 
-		public double UniformStartLength(double start, double length)
+		double IRandomGen.UniformStartLength(double start, double length)
 		{
-			Contract.Requires(length >= 0);
+			Contract.Requires(length > 0);
+			Contract.Requires(start > double.NegativeInfinity);
+			Contract.Requires(length < double.PositiveInfinity);
 			Contract.Ensures(Contract.Result<double>() >= start);
-			Contract.Ensures(Contract.Result<double>() <= length);
+			Contract.Ensures(Contract.Result<double>() < start + length);
 			throw new NotImplementedException();
 		}
 
-		public double Gauss()
+		float IRandomGen.UniformSingle()
+		{
+			Contract.Ensures(Contract.Result<float>() >= 0);
+			Contract.Ensures(Contract.Result<float>() < 1);
+			throw new NotImplementedException();
+		}
+
+		float IRandomGen.UniformSingleStartEnd(float start, float exclusiveEnd)
+		{
+			Contract.Requires(start < exclusiveEnd);
+			Contract.Requires(start > float.NegativeInfinity);
+			Contract.Requires(exclusiveEnd < float.PositiveInfinity);
+			Contract.Ensures(Contract.Result<float>() >= start);
+			Contract.Ensures(Contract.Result<float>() < exclusiveEnd);
+			throw new NotImplementedException();
+		}
+
+		float IRandomGen.UniformSingleStartLength(float start, float length)
+		{
+			Contract.Requires(length > 0);
+			Contract.Requires(start > float.NegativeInfinity);
+			Contract.Requires(length < float.PositiveInfinity);
+			Contract.Ensures(Contract.Result<float>() >= start);
+			Contract.Ensures(Contract.Result<float>() < start + length);
+			throw new NotImplementedException();
+		}
+
+		double IRandomGen.Gaussian()
 		{
 			throw new NotImplementedException();
 		}
 
-		public double Gauss(double standardDeviation)
+		double IRandomGen.Gaussian(double standardDeviation)
 		{
 			Contract.Requires(standardDeviation >= 0);
+			Contract.Requires(standardDeviation < double.PositiveInfinity);
 			throw new NotImplementedException();
 		}
 
-		public double Gauss(double mean, double standardDeviation)
+		double IRandomGen.Gaussian(double mean, double standardDeviation)
 		{
+			Contract.Requires(mean > double.NegativeInfinity);
+			Contract.Requires(mean < double.PositiveInfinity);
 			Contract.Requires(standardDeviation >= 0);
+			Contract.Requires(standardDeviation < double.PositiveInfinity);
 			throw new NotImplementedException();
 		}
 
-		public double Exponential()
+		double IRandomGen.Exponential()
 		{
 			Contract.Ensures(Contract.Result<double>() >= 0);
 			throw new NotImplementedException();
 		}
 
-		public double Exponential(double mean)
+		double IRandomGen.ExponentialMean(double mean)
 		{
 			Contract.Requires(mean >= 0);
 			Contract.Ensures(Contract.Result<double>() >= 0);
 			throw new NotImplementedException();
 		}
 
-		public int Poisson(double mean)
+		double IRandomGen.ExponentialRate(double rate)
+		{
+			Contract.Requires(rate >= 0);
+			Contract.Ensures(Contract.Result<double>() >= 0);
+			throw new NotImplementedException();
+		}
+
+		int IRandomGen.Poisson(double mean)
 		{
 			Contract.Requires(mean >= 0);
 			Contract.Ensures(Contract.Result<int>() >= 0);
 			throw new NotImplementedException();
 		}
 
-		public bool Bool()
+		bool IRandomGen.Bool()
 		{
 			throw new NotImplementedException();
 		}
 
-		public bool Bool(double probability)
+		bool IRandomGen.Bool(double probability)
 		{
 			Contract.Requires(probability >= 0);
 			Contract.Requires(probability <= 1);
 			throw new NotImplementedException();
 		}
 
-		public sbyte SByte()
+		sbyte IRandomGen.SByte()
 		{
 			throw new NotImplementedException();
 		}
 
-		public byte Byte()
+		byte IRandomGen.Byte()
 		{
 			throw new NotImplementedException();
 		}
 
-		public short Int16()
+		short IRandomGen.Int16()
 		{
 			throw new NotImplementedException();
 		}
 
-		public ushort UInt16()
+		ushort IRandomGen.UInt16()
 		{
 			throw new NotImplementedException();
 		}
 
-		public int Int32()
+		int IRandomGen.Int32()
 		{
 			throw new NotImplementedException();
 		}
 
-		public uint UInt32()
+		uint IRandomGen.UInt32()
 		{
 			throw new NotImplementedException();
 		}
 
-		public long Int64()
+		long IRandomGen.Int64()
 		{
 			throw new NotImplementedException();
 		}
 
-		public ulong UInt64()
+		ulong IRandomGen.UInt64()
 		{
 			throw new NotImplementedException();
 		}
 
-		public int UniformInt(int count)
+		int IRandomGen.UniformInt(int count)
 		{
 			Contract.Requires(count >= 1);
 			Contract.Ensures(Contract.Result<int>() >= 0);
@@ -173,7 +217,7 @@ namespace Chaos.Util
 			throw new NotImplementedException();
 		}
 
-		public int UniformIntStartEnd(int start, int inclusiveEnd)
+		int IRandomGen.UniformIntStartEnd(int start, int inclusiveEnd)
 		{
 			Contract.Requires(inclusiveEnd >= start);
 			Contract.Ensures(Contract.Result<int>() >= start);
@@ -181,16 +225,16 @@ namespace Chaos.Util
 			throw new NotImplementedException();
 		}
 
-		public int UniformIntStartCount(int start, int count)
+		int IRandomGen.UniformIntStartCount(int start, int count)
 		{
 			Contract.Requires(count >= 1);
-			Contract.Requires(start + count >= 0);
+			Contract.Requires(start + count >= start);//No int overflow
 			Contract.Ensures(Contract.Result<int>() >= start);
 			Contract.Ensures(Contract.Result<int>() < start + count);
 			throw new NotImplementedException();
 		}
 
-		public long UniformInt(long count)
+		long IRandomGen.UniformInt(long count)
 		{
 			Contract.Requires(count >= 1);
 			Contract.Ensures(Contract.Result<long>() >= 0);
@@ -198,7 +242,7 @@ namespace Chaos.Util
 			throw new NotImplementedException();
 		}
 
-		public long UniformIntStartEnd(long start, long inclusiveEnd)
+		long IRandomGen.UniformIntStartEnd(long start, long inclusiveEnd)
 		{
 			Contract.Requires(inclusiveEnd >= start);
 			Contract.Ensures(Contract.Result<long>() >= start);
@@ -206,15 +250,16 @@ namespace Chaos.Util
 			throw new NotImplementedException();
 		}
 
-		public long UniformIntStartCount(long start, long count)
+		long IRandomGen.UniformIntStartCount(long start, long count)
 		{
 			Contract.Requires(count >= 1);
-			Contract.Ensures(Contract.Result<int>() >= start);
-			Contract.Ensures(Contract.Result<int>() < start + count);
+			Contract.Requires(start + count >= start);//No int overflow
+			Contract.Ensures(Contract.Result<long>() >= start);
+			Contract.Ensures(Contract.Result<long>() < start + count);
 			throw new NotImplementedException();
 		}
 
-		public int Binomial(int n, double probability)
+		int IRandomGen.Binomial(int n, double probability)
 		{
 			Contract.Requires(n >= 0);
 			Contract.Requires(probability >= 0);
@@ -224,22 +269,13 @@ namespace Chaos.Util
 			throw new NotImplementedException();
 		}
 
-		public long Binomial(long n, double probability)
-		{
-			Contract.Requires(n >= 0);
-			Contract.Requires(probability >= 0);
-			Contract.Requires(probability <= 1);
-			Contract.Ensures(Contract.Result<long>() >= 0);
-			Contract.Ensures(Contract.Result<long>() <= n);
-			throw new NotImplementedException();
-		}
-
-		public void Bytes(byte[] data, int start, int count)
+		void IRandomGen.Bytes(byte[] data, int start, int count)
 		{
 			Contract.Requires(data != null);
 			Contract.Requires(start >= 0);
 			Contract.Requires(count >= 0);
 			Contract.Requires(start + count <= data.Length);
+			Contract.Requires(start + count >= start);//No int overflow
 			throw new NotImplementedException();
 		}
 	}

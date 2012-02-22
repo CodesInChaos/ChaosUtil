@@ -19,8 +19,8 @@ namespace Chaos.Util.Mathematics
 		public float Right { get { return BottomRight.X; } }
 		public float Bottom { get { return BottomRight.Y; } }
 
-		public float Width { get { return Size.X; } }
-		public float Height { get { return Size.Y; } }
+		public float Width { get { return Right - Left; } }
+		public float Height { get { return Bottom - Top; } }
 
 		/// <summary>
 		/// Borders inclusive

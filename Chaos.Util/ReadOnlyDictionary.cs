@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Diagnostics.Contracts;
 
 namespace Chaos.Util
 {
@@ -9,8 +10,15 @@ namespace Chaos.Util
 	{
 		private readonly IDictionary<TKey, TValue> _dict;
 
+		[ContractInvariantMethod]
+		void ObjectInvariant()
+		{
+			Contract.Invariant(_dict != null);
+		}
+
 		public static ReadOnlyDictionary<TKey, TValue> CreateIndependent(IEnumerable<KeyValuePair<TKey, TValue>> items)
 		{
+			Contract.Requires(items != null);
 			var dict = new Dictionary<TKey, TValue>();
 			foreach (var item in items)
 				dict.Add(item.Key, item.Value);
@@ -19,6 +27,7 @@ namespace Chaos.Util
 
 		public ReadOnlyDictionary(IDictionary<TKey, TValue> dict)
 		{
+			Contract.Requires(dict != null);
 			_dict = dict;
 		}
 
