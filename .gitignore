@@ -1,8 +1,9 @@
 *.suo
 *.user
 *.ncb
-.svn
-bin
-obj
-Debug
-Release
+.svn/
+bin/
+obj/
+Debug/
+Release/
+TestResults/
