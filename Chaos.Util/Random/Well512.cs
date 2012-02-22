@@ -15,6 +15,15 @@ namespace Chaos.Util
 				rngstate[i] = RandomGen.Default.UInt32();
 		}
 
+		public Well512(long seed)
+		{
+			var seedBytes=BitConverter.GetBytes(seed);
+			var sha512=System.Security.Cryptography.SHA512.Create();
+			byte[] initialBytes=sha512.ComputeHash(seedBytes);
+			for (int i = 0; i < 16; i++)
+				rngstate[i] = BitConverter.ToUInt32(initialBytes, 4 * i);
+		}
+
 		/* initialize state to random bits */
 		UInt32[] rngstate;
 		/* init should also reset this to 0 */

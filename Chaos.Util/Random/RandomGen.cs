@@ -357,6 +357,12 @@ namespace Chaos.Util
 			return new RandomGen(new Well512().GenerateInts, 1024);
 		}
 
+		public static RandomGen CreateWell512(long seed)
+		{
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return new RandomGen(new Well512(seed).GenerateInts, 1024);
+		}
+
 		/// <summary>
 		/// cryptographically secure
 		/// </summary>
@@ -378,7 +384,8 @@ namespace Chaos.Util
 
 		public static RandomGen CreateFast(long seed)
 		{
-			throw new NotImplementedException();
+			Contract.Ensures(Contract.Result<RandomGen>() != null);
+			return CreateWell512(seed);
 		}
 
 		/// <summary>
