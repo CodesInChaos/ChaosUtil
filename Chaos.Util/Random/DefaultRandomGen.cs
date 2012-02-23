@@ -182,5 +182,16 @@ namespace Chaos.Util
 		internal DefaultRandomGen()
 		{
 		}
+
+
+		public uint UniformUInt(uint count)
+		{
+			return Instance.UniformUInt(count);
+		}
+
+		public ulong UniformUInt(ulong count)
+		{
+			return Instance.UniformUInt(count);
+		}
 	}
 }

@@ -46,6 +46,9 @@ namespace Chaos.Util
 		long UniformIntStartEnd(long start, long inclusiveEnd);
 		long UniformIntStartCount(long start, long count);
 
+		uint UniformUInt(uint count);
+		ulong UniformUInt(ulong count);
+
 		int Poisson(double mean);
 		int Binomial(int n, double probability);
 
@@ -276,6 +279,19 @@ namespace Chaos.Util
 			Contract.Requires(count >= 0);
 			Contract.Requires(start + count <= data.Length);
 			Contract.Requires(start + count >= start);//No int overflow
+			throw new NotImplementedException();
+		}
+
+
+		public uint UniformUInt(uint count)
+		{
+			Contract.Ensures(Contract.Result<uint>() < count);
+			throw new NotImplementedException();
+		}
+
+		public ulong UniformUInt(ulong count)
+		{
+			Contract.Ensures(Contract.Result<ulong>() < count);
 			throw new NotImplementedException();
 		}
 	}

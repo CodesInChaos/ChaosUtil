@@ -23,6 +23,10 @@ namespace Chaos.Util
 
 		protected readonly int[] buffer;
 		protected int index;
+		private uint bitStore;
+		private uint byteStore;
+		private uint shortStore;
+		private double gaussStore;
 
 
 		[ContractInvariantMethod]
@@ -51,21 +55,29 @@ namespace Chaos.Util
 			}
 		}
 
-		private double cachedGauss;
-
 		public double Uniform()
 		{
 			ulong value = UInt64();
 			//chosen so that result < 1 even when value&mask==mask
 			const ulong count = 1ul << 53;
 			const ulong mask = count - 1;
-			double result = (value & mask) * (1 / (double)count);
+			const double multiplier = (1 / (double)count);//Exactly representable
+			double result = (value & mask) * multiplier;
 			return result;
 		}
 
 		public double UniformStartEnd(double start, double exclusiveEnd)
 		{
-			return (exclusiveEnd - start) * Uniform() + start;
+			double result;
+			do
+			{
+				// The seemingly redundant cast is necessary to coerce the value to double
+				// else the result might have a higher precision
+				result = (double)((exclusiveEnd - start) * Uniform() + start);
+			} while (result >= exclusiveEnd);
+			// The loop is necessary, because rounding errors might push the result so it's equal to exclusiveEnd, which would violate the contract
+			// But that event is *very* rare
+			return result;
 		}
 
 		public double UniformStartLength(double start, double length)
@@ -75,25 +87,40 @@ namespace Chaos.Util
 
 		public float UniformSingle()
 		{
-			throw new NotImplementedException();
+			uint value = UInt32();
+			//chosen so that result < 1 even when value&mask==mask
+			const ulong count = 1ul << 24;
+			const ulong mask = count - 1;
+			const float multiplier = (1 / (float)count);//Exactly representable
+			float result = (value & mask) * multiplier;
+			return result;
 		}
 
 		public float UniformSingleStartEnd(float start, float exclusiveEnd)
 		{
-			throw new NotImplementedException();
+			float result;
+			do
+			{
+				// The seemingly redundant cast is necessary to coerce the value to float
+				// else the result might have a higher precision
+				result = (float)((exclusiveEnd - start) * Uniform() + start);
+			} while (result >= exclusiveEnd);
+			// The loop is necessary, because rounding errors might push the result so it's equal to exclusiveEnd, which would violate the contract
+			// But that event is *very* rare
+			return result;
 		}
 
 		public float UniformSingleStartLength(float start, float length)
 		{
-			throw new NotImplementedException();
+			return length * UniformSingle() + start;
 		}
 
 		public double Gaussian()
 		{
-			double oldGauss = this.cachedGauss;
+			double oldGauss = this.gaussStore;
 			if (!double.IsNaN(oldGauss))
 			{
-				this.cachedGauss = double.NaN;
+				this.gaussStore = double.NaN;
 				return oldGauss;
 			}
 			else
@@ -106,7 +133,7 @@ namespace Chaos.Util
 
 				double gauss1 = radius * Math.Cos(angle);
 				double gauss2 = radius * Math.Sin(angle);
-				this.cachedGauss = gauss2;
+				this.gaussStore = gauss2;
 				return gauss1;
 			}
 		}
@@ -168,7 +195,18 @@ namespace Chaos.Util
 
 		public bool Bool()
 		{
-			return Byte() > 127;
+			var localBitStore = bitStore;
+			if (localBitStore > 1)
+			{
+				bitStore = localBitStore >> 1;
+				return (bitStore & 1) != 0;
+			}
+			else
+			{
+				localBitStore = UInt32();
+				bitStore = localBitStore | 0x80000000;
+				return (int)localBitStore < 0;
+			}
 		}
 
 		public bool Bool(double probability)
@@ -178,22 +216,44 @@ namespace Chaos.Util
 
 		public sbyte SByte()
 		{
-			return (sbyte)Int32();
+			return (sbyte)Byte();
 		}
 
 		public byte Byte()
 		{
-			return (byte)Int32();
+			var localByteStore = byteStore;
+			if (localByteStore >= 0x100)
+			{
+				byteStore = localByteStore >> 8;
+				return (byte)localByteStore;
+			}
+			else
+			{
+				localByteStore = UInt32();
+				byteStore = localByteStore | 0xFF000000;
+				return (byte)(localByteStore >> 24);
+			}
 		}
 
 		public short Int16()
 		{
-			return (short)Int32();
+			return (short)UInt16();
 		}
 
 		public ushort UInt16()
 		{
-			return (ushort)Int32();
+			var localShortStore = shortStore;
+			if (localShortStore >= 0x100)
+			{
+				shortStore = localShortStore >> 16;
+				return (ushort)localShortStore;
+			}
+			else
+			{
+				localShortStore = UInt32();
+				shortStore = localShortStore | 0xFFFF0000;
+				return (ushort)(localShortStore >> 16);
+			}
 		}
 
 		public int Int32()
@@ -271,7 +331,7 @@ namespace Chaos.Util
 			return (int)UniformInt((uint)count);
 		}
 
-		private uint UniformInt(uint count)
+		public uint UniformUInt(uint count)
 		{
 			Contract.Requires(count > 0);
 			Contract.Ensures(Contract.Result<uint>() < count);
@@ -302,14 +362,19 @@ namespace Chaos.Util
 			return rand % count;
 		}
 
-		public int UniformIntStartEnd(int start, int inclusiveEnd)
+		public ulong UniformUInt(ulong count)
 		{
 			throw new NotImplementedException();
 		}
 
+		public int UniformIntStartEnd(int start, int inclusiveEnd)
+		{
+			return start + UniformInt(inclusiveEnd - start + 1);
+		}
+
 		public int UniformIntStartCount(int start, int count)
 		{
-			throw new NotImplementedException();
+			return start + UniformInt(count);
 		}
 
 		public long UniformInt(long count)
@@ -319,7 +384,7 @@ namespace Chaos.Util
 
 		public long UniformIntStartEnd(long start, long inclusiveEnd)
 		{
-			throw new NotImplementedException();
+			return start + (long)UniformUInt((ulong)(inclusiveEnd - start + 1));
 		}
 
 		public long UniformIntStartCount(long start, long count)
